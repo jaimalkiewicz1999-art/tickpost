@@ -68,9 +68,9 @@ func Open(path string) (*Store, error) {
 		}
 	}
 	// Keep URI delimiters and percent escapes in a TICKPOST_DB filename literal.
-\t// The query string below controls SQLite pragmas, not the path itself.
-\tescapedPath := strings.NewReplacer("%", "%25", "?", "%3F", "#", "%23").Replace(path)
-\tdsn := "file:" + escapedPath + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)"
+	// The query string below controls SQLite pragmas, not the path itself.
+	escapedPath := strings.NewReplacer("%", "%25", "?", "%3F", "#", "%23").Replace(path)
+	dsn := "file:" + escapedPath + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open %s: %w", path, err)
