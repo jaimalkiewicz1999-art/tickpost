@@ -8,7 +8,7 @@ import (
 )
 
 func TestOpenPreservesReservedFilenameCharacters(t *testing.T) {
-	names := []string{"notes#fragment.db", "notes%percent.db", "notes#50%.db"}
+	names := []string{"notes#fragment.db", "notes%percent.db", "notes#50%.db", "notes%23.db"}
 	if runtime.GOOS != "windows" {
 		names = append(names, "notes?query.db")
 	}
