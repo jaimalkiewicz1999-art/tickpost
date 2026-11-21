@@ -54,6 +54,9 @@ func run(args []string) error {
 		return nil
 	}
 
+	if err := validateArgsBeforeStorage(cmd, rest); err != nil {
+		return err
+	}
 	path, err := DefaultPath()
 	if err != nil {
 		return err
@@ -87,6 +90,24 @@ func run(args []string) error {
 	}
 }
 
+// validateArgsBeforeStorage rejects malformed operands before Open can create
+// the SQLite database or its parent directory. Purge has a separate guard.
+func validateArgsBeforeStorage(cmd string, args []string) error {
+	switch cmd {
+	case "add":
+		_, words, err := splitTag(args)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(strings.Join(words, " ")) == "" {
+			return fmt.Errorf("nothing to add, try: tickpost add \"drain the queue before deploy\"")
+		}
+	case "done", "open", "undone", "rm", "remove":
+		_, err := parseID(args)
+		return err
+	}
+	return nil
+}
 func cmdAdd(s *Store, args []string) error {
 	tag, words, err := splitTag(args)
 	if err != nil {
