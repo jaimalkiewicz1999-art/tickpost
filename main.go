@@ -54,6 +54,10 @@ func run(args []string) error {
 		return nil
 	}
 
+	if cmd == "purge" && len(rest) != 0 {
+		return fmt.Errorf("purge takes no arguments")
+	}
+
 	path, err := DefaultPath()
 	if err != nil {
 		return err
