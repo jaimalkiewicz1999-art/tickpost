@@ -52,6 +52,9 @@ func run(args []string) error {
 	case "version", "--version":
 		fmt.Println("tickpost", version)
 		return nil
+	case "add", "ls", "list", "done", "open", "undone", "rm", "remove", "purge":
+	default:
+		return fmt.Errorf("unknown command %q, try 'tickpost help'", cmd)
 	}
 
 	path, err := DefaultPath()
