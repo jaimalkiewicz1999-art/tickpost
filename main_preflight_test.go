@@ -20,6 +20,10 @@ func TestMalformedKnownCommandsDoNotCreateStorage(t *testing.T) {
 		{"invalid-remove-id", []string{"remove", "0"}, "not a note id"},
 		{"missing-open-id", []string{"open"}, "expected exactly one note id"},
 		{"invalid-undone-id", []string{"undone", "-2"}, "not a note id"},
+		{"list-unknown-flag", []string{"ls", "-not-a-flag"}, "flag provided but not defined"},
+		{"list-missing-tag", []string{"ls", "-tag"}, "flag needs an argument"},
+		{"list-unexpected-positional", []string{"ls", "unexpected"}, "ls takes no positional arguments"},
+		{"list-alias-positional", []string{"list", "unexpected"}, "ls takes no positional arguments"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
