@@ -54,6 +54,9 @@ func run(args []string) error {
 		return nil
 	}
 
+	if err := validateArgsBeforeStorage(cmd, rest); err != nil {
+		return err
+	}
 	path, err := DefaultPath()
 	if err != nil {
 		return err
@@ -87,6 +90,27 @@ func run(args []string) error {
 	}
 }
 
+// validateArgsBeforeStorage rejects malformed operands before Open can create
+// the SQLite database or its parent directory. Purge has a separate guard.
+func validateArgsBeforeStorage(cmd string, args []string) error {
+	switch cmd {
+	case "add":
+		_, words, err := splitTag(args)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(strings.Join(words, " ")) == "" {
+			return fmt.Errorf("nothing to add, try: tickpost add \"drain the queue before deploy\"")
+		}
+	case "ls", "list":
+		_, _, err := parseListArgs(args)
+		return err
+	case "done", "open", "undone", "rm", "remove":
+		_, err := parseID(args)
+		return err
+	}
+	return nil
+}
 func cmdAdd(s *Store, args []string) error {
 	tag, words, err := splitTag(args)
 	if err != nil {
@@ -126,14 +150,25 @@ func splitTag(args []string) (tag string, rest []string, err error) {
 	return tag, rest, nil
 }
 
-func cmdList(s *Store, args []string) error {
+func parseListArgs(args []string) (bool, string, error) {
 	fs := flag.NewFlagSet("ls", flag.ContinueOnError)
 	all := fs.Bool("a", false, "include closed notes")
 	tag := fs.String("tag", "", "only show notes with this tag")
 	if err := fs.Parse(args); err != nil {
+		return false, "", err
+	}
+	if fs.NArg() != 0 {
+		return false, "", fmt.Errorf("ls takes no positional arguments")
+	}
+	return *all, *tag, nil
+}
+
+func cmdList(s *Store, args []string) error {
+	all, tag, err := parseListArgs(args)
+	if err != nil {
 		return err
 	}
-	notes, err := s.List(*all, *tag)
+	notes, err := s.List(all, tag)
 	if err != nil {
 		return err
 	}
